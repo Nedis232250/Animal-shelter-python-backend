@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Send a command</h1>
+    <textarea id="command" width="500" height="200"></textarea>
+    <button onclick="send()">Send</button>
+
+    <script>
+        const ws = new WebSocket("ws://localhost:8765");
+
+        function send() {
+            const command = document.getElementById("command").value;
+            ws.send(command);
+        }
+
+        ws.onmessage = (event) => {
+            alert("Server: " + event.data);
+        };
+    </script>
+</body>
+</html>
