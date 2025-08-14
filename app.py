@@ -10,8 +10,8 @@ from datetime import datetime, timedelta
 import smtplib
 from email.mime.text import MIMEText
 
-MIME_APP_PASSWORD = "jchcqqkyamzmmhpw"
-SENDER = "nedis232250@gmail.com"
+MIME_APP_PASSWORD = ""
+SENDER = ""
 DONATION_LINK = ""
 
 """
