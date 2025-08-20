@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+<body style="height: 100%; margin: 0; padding: 0;">
+    <div style="position: relative; width: 100%;">
+    <img style="width: 100%; height: 100vh; display: block;" data-for="background-image">
+
+    <div style="
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        margin-left: 30vw;
+        margin-right: 30vw;
+        padding-top: 0.25vh;
+        padding-bottom: 2.5vh;
+        height: 90vh;
+        border-radius: 1.25%;
+        margin-top: 5vh;
+        background-color: #EAEAEA;
+    ">
+        <h2 style="text-align: center; font-family: Georgia, serif; font-weight: lighter;">Log in</h2>
+        <div style="display: flex; flex-direction: column; align-items: center; font-family: Georgia, serif; font-weight: lighter;">
+            <div style="display: flex; flex-direction: column; align-items: flex-start; width: max-content;">
+                <label style="margin-top: 1.25vh;">Email:</label>
+                <input style="width: 30vw; height: 4.5vh; margin-top: 1.25vh;" type="email" placeholder="john.doe@example.com" id="email">
+                <label style="margin-top: 1.25vh;">Password:</label>
+                <input style="width: 30vw; height: 4.5vh; margin-top: 1.25vh;" type="password" placeholder="R[o%wOQ-~!+=Zhl" id="password">
+            </div>
+            <button onclick="send()" style="padding: 2.5vh; margin-top: 2.5vh; width: 30%; height: 10vh; font-family: Georgia, serif; font-weight: lighter; font-size: 20px;">Log in</button>
+    </div>
+
+    <script>
+        const ws = new WebSocket("ws://localhost:8765");
+
+        function send() {
+            ws.send(JSON.stringify({"instruction": "login", "email": document.getElementById("email").value, "password": document.getElementById("password").value}));
+        }
+    
+        ws.onopen = () => {
+            ws.send(JSON.stringify({"instruction": "image", "path": "signup.jpeg", "for": "background-image"}));
+        }
+    
+        ws.onmessage = (event) => {
+            const res = JSON.parse(event.data);
+
+            if (res["server response"] == "image") {
+                const elements = document.querySelectorAll(`[data-for="${res["for"]}"]`);
+                elements.forEach(el => {
+                    el.src = "data:image/png;base64," + res["data"];
+                });
+            } else if (res["server response"] == "return login") {
+                if (res["success"]) {
+                    localStorage.setItem("Nedis232-animal-shelter-sessionID", res["sessionID"]);
+                    window.location.href = "index.html";
+                } else {
+                    alert(cmd["errormsg"]);
+                }
+            }
+        };
+    </script>
+</body>
+</html>
