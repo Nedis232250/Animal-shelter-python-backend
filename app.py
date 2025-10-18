@@ -11,9 +11,9 @@ from datetime import datetime, timedelta
 import smtplib
 from email.mime.text import MIMEText
 
-MIME_APP_PASSWORD = "annoznobpygmtuxu"
-SENDER = "nedis232250@gmail.com"
-DONATION_LINK = "youtube.com/@Nedis232"
+MIME_APP_PASSWORD = retrieve("password", "progmeta.txt")
+SENDER = retrieve("sender", "progmeta.txt")
+DONATION_LINK = retrieve("donationlink", "progmeta.txt")
 
 """
 
@@ -39,6 +39,10 @@ Format for adoptions:
 
 ["hh:mm,dd/mm/yyyy", "email"] (only 1)
 ["2:40pm,6/19/2027", "nedis232250@gmail.com"] -- 2:40pm june 19th 2027 for nedis232250@gmail.com
+
+MIME APP PASSWORD READ FROM FILE
+SENDER AND DONATION LINK READ FROM FILE
+DONATION LINK ON HOMEPAGE
 
 """
 
@@ -166,13 +170,16 @@ async def handler(ws):
 
                             edit(cmd["email"].strip(), json.dumps(user_metadata), "kv.txt")
                     else:
-                        return_pwchange = {
-                            "server response": "return pwchange",
-                            "success": success,
-                            "errormsg": errormsg,
-                        }
+                        success = False
+                        errormsg = "Email or password is incorrect!"
+                    
+                return_pwchange = {
+                    "server response": "return pwchange",
+                    "success": success,
+                    "errormsg": errormsg,
+                }
 
-                        await ws.send(json.dumps(return_pwchange))
+                await ws.send(json.dumps(return_pwchange))
             elif cmd["instruction"] == "delete user":
                 success = True
                 errormsg = ""
@@ -387,9 +394,9 @@ async def handler(ws):
             elif cmd["instruction"] == "request animals":
                 await ws.send(dump("animals.txt"))
             elif cmd["instruction"] == "request animal":
-                await ws.send(retrieve(cmd["name"].strip(), "animals.txt"))
+                await ws.send(json.dumps({"server response": "request animal", "value": retrieve(cmd["name"].strip(), "animals.txt")}))
             elif cmd["instruction"] == "donate":
-                await ws.send(DONATION_LINK)
+                await ws.send(json.dumps({"server response": "donate", "link": DONATION_LINK}))
             elif cmd["instruction"] == "add key":
                 success = True
                 errormsg = ""
@@ -645,9 +652,15 @@ async def handler(ws):
 
                 await ws.send(json.dumps(return_delete_volunteer))
             elif cmd["instruction"] == "request volunteers":
-                await ws.send(dump("volunteers.txt"))
+                dmp = dump("volunteers.txt")
+                str_ = ""
+
+                for i, s in enumerate(dmp):
+                    str_ += s + "\r"
+
+                await ws.send(json.dumps({"server response": "return volunteers", "values": str_}))
             elif cmd["instruction"] == "request volunteer":
-                await ws.send(retrieve(cmd["name"], "volunteers.txt"))
+                await ws.send(json.dumps({"server response": "return volunteer", "value": retrieve(cmd["name"], "volunteers.txt")}))
             elif cmd["instruction"] == "request capacity":
                 await ws.send(json.dumps({"server response": "return capacity", "capacity": retrieve("space", "misc.txt")}))
             elif cmd["instruction"] == "set capacity":
@@ -820,12 +833,73 @@ async def handler(ws):
                 }
 
                 await ws.send(json.dumps(return_image))
+                
+            elif cmd["instruction"] == "request adoptions":
+                dmp = dump("adoptions.txt")
+                str_ = ""
+
+                for i, s in enumerate(dmp):
+                    str_ += s + "\r"
+
+                await ws.send(json.dumps({"server response": "return adoptions", "values": str_}))
+            elif cmd["instruction"] == "request adoption":
+                await ws.send(json.dumps({"server response": "return adoption", "value": retrieve(cmd["name"], "adoptions.txt")}))
+            elif cmd["instruction"] == "request relinquishments":
+                await ws.send(json.dumps({"server response": "return relinquishments", "values": dump("relinquishments.txt")}))
+            elif cmd["instruction"] == "relinquish":
+                dmp = dump("kv.txt")
+                email = ""
+
+                for s in dmp:
+                    if str(cmd["sessionID"]).strip() == 0:
+                        break
+
+                    if cmd["sessionID"] == json.loads(s.split(",", 1)[1])["sessionID"]:
+                        email = s.split(",", 1)[0].strip()
+
+                print(email)
+                add_key(cmd["key"], json.dumps({"name": cmd["name"], "hour": cmd["hour"], "relinquishedby": email}), "relinquishments.txt")
+            elif cmd["instruction"] == "delete relinquishment":
+                success = True
+                errormsg = ""
+                users = dump("kv.txt")
+                correct_user_dat = ""
+
+                print("hi")
+                for user in users:
+                    user_metadata = json.loads(user.split(",", 1)[1].strip())
+                    user_email = user.split(",", 1)[0].strip()
+
+                    print(str(cmd["sessionID"]).strip())
+                    if str(cmd["sessionID"]).strip() == None:
+                        break
+
+                    if user_metadata["sessionID"] == cmd["sessionID"]:
+                        correct_user_dat = user_metadata
+                        
+                        for relinquishment in dump("relinquishments.txt"):
+                            if (json.loads(relinquishment.split(",", 1)[1])["relinquishedby"] == user_email or correct_user_dat["role"] == "staff" or correct_user_dat["role"] == "admin") and cmd["name"] == json.loads(relinquishment.split(",", 1)[1])["name"]:
+                                delete(relinquishment.split(",", 1)[0], "relinquishments.txt")
+                                break
+                            else:
+                                success = False
+                                errormsg = "Session ID does not exist, you don't own the relinquishment or you are not an administrator or staff"
+                        else:
+                            success = False
+                            errormsg = "Session ID does not exist, you don't own the relinquishment or you are not an administrator or staff"
+
+                return_delete_relinquishment = {
+                    "server response": "delete relinquishment",
+                    "success": success,
+                    "errormsg": errormsg
+                }
+
+                await ws.send(json.dumps(return_delete_relinquishment))
                                 
         except Exception as e:
             await ws.send("Error: " + str(e))
 
 async def main():
-
     async with websockets.serve(handler, "localhost", 8765, max_size=2097152):
         print("WebSocket open on ws://localhost:8765")
         await asyncio.Future()
