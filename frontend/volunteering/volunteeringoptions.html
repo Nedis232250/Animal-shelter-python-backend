@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+<link rel="stylesheet" href="../navbar.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+    textarea {
+        font-family: Arial;
+        resize: none;
+    }
+
+    .in-vol-opt {
+        width: 15vw;
+        height: 15vw;
+        margin-left: 2.5vw;
+        margin-right: 2.5vw;
+        margin-bottom: 2.5vh;
+        padding: 5%;
+        text-align: center;
+        overflow-y: auto;
+        scrollbar-width: none; /* Firefox hides it */
+        -ms-overflow-style: none; /* IE/Edge legacy */
+        background-color: #DADADA;
+        overflow-x: hidden;
+    }
+
+    .in-vol-opt::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
+
+    .in-vol-opt img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* keep aspect ratio and fit inside */
+        display: block;
+    }
+</style>
+
+<body style="height: 100%; margin: 0; padding-bottom: 0;">
+    <div id="navbar" style="background-color: #62884B; color: #EAEAEA; font-family: arial;">
+        <span class="el dropdown">
+            <p>Account</p>
+            <div class="dropdown-content">
+                <a href="../signup.html">Sign up</a><br><br>
+                <a href="../login.html">Log in</a><br><br>
+                <a href="../verification.html">Verify email</a><br><br>
+                <a href="../pwchange.html">Change password</a>
+            </div>
+        </span><span class="el dropdown">
+            <p>Volunteering</p>
+            <div class="dropdown-content">
+                <a href="createvolunteer.html">Create volunteering event</a><br><br>
+                <a href="deletevolunteer.html">Delete volunteering event</a><br><br>
+                <a href="volunteeringoptions.html">Volunteering oppurtunities</a><br><br>
+                <a href="volunteers.html">Volunteer list</a>
+            </div>
+        </span><span class="el dropdown">
+            <p>Adoption</p>
+            <div class="dropdown-content">
+                <a href="../adoptions/addadoptions.html">Put animal up for adoption</a><br><br>
+                <a href="../adoptions/deleteadoption.html">Remove animal from adoption list</a><br><br>
+                <a href="../adoptions/adoptions.html">Adoption oppurtunities</a><br><br>
+                <a href="../adoptions/listadoptions.html">Adoption timing list</a>
+            </div>
+        </span><span class="el dropdown">
+            <p>Relinquishment</p>
+            <div class="dropdown-content">
+                <a href="../relinquishments/relinquishment.html">Add relinquishment time</a><br><br>
+                <a href="../relinquishments/deleterelinquishment.html">Delete relinquishment time</a><br><br>
+                <a href="../relinquishments/listrelinquishments.html">List relinquishment times</a>
+            </div>
+        </span><span class="el dropdown">
+            <p>Animal data</p>
+            <div class="dropdown-content">
+                <a href="../addanimal.html">Add an animal to the system</a><br><br>
+                <a href="../deleteanimal.html">Delete an animal from the system</a><br><br>
+                <a href="../editanimal.html">Edit animal data</a><br><br>
+                <a href="../setcap.html">Set available capacity</a>
+            </div>
+        </span><span class="el dropdown" id="click-link"><p><a href="../index.html" style="text-decoration: none; color: #f9f9f9;">Home Page</a></p></span>
+    </div>
+    <img style="width: 100%; height: 100vh; display: block; position: fixed;" data-for="background-image">
+
+    <div style="
+        position: absolute;
+        top: 75px; left: 0; right: 0;
+        margin-left: 5vw;
+        margin-right: 5vw;
+        padding-top: 5vh;
+        padding-bottom: 5vh;
+        margin-top: 5vh;
+        background-color: #EAEAEA;
+        margin-bottom: 2.5vh;
+        font-family: 'Montserrat';
+        border-radius: 10px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+    " id="container">
+        
+    </div>
+
+    <script>
+        const og_float_home_link_x = document.getElementById("click-link").getBoundingClientRect().right;
+        document.getElementById("click-link").style.position = "relative";
+        document.getElementById("click-link").style.left = `${
+            window.innerWidth - og_float_home_link_x - 25
+        }px`;
+
+        window.addEventListener("resize", () => {
+            document.getElementById("click-link").style.position = "relative";
+            document.getElementById("click-link").style.left = `${
+                window.innerWidth - og_float_home_link_x - 25
+            }px`;
+        });
+
+        const ws = new WebSocket("ws://localhost:8765");
+    
+        ws.onopen = () => {
+            ws.send(JSON.stringify({"instruction": "image", "path": "signup.jpeg", "for": "background-image"}));
+            setTimeout(ws.send(JSON.stringify({"instruction": "request volunteers"})), 1000);
+        }
+    
+        ws.onmessage = (event) => {
+            const res = JSON.parse(event.data);
+
+            if (res["server response"] == "image") {
+                const elements = document.querySelectorAll(`[data-for="${res["for"]}"]`);
+                elements.forEach(el => {
+                    el.src = "data:image/png;base64," + res["data"];
+                });
+            } else if (res["server response"] == "return volunteers") {
+                const oppurtunities = JSON.stringify(res["values"]).split("\\n\\r");
+
+                console.log(oppurtunities);
+
+                for (let i = 0; i < oppurtunities.length - 1; i++) {
+                    const clean1 = oppurtunities[i].replaceAll("\\", "").split(/(,)/);
+                    let clean2 = ""
+
+                    for (let j = 2; j < clean1.length; j++) {
+                        clean2 += clean1[j];
+                    }
+
+                    const obj = JSON.parse(clean2);
+
+                    let hours = ""
+                    const split_ = obj["hours"][0].split("-");
+
+                    const start_time = split_[0].split(",")[0];
+                    const start_date = split_[0].split(",")[1];
+                    const end_time = split_[1].split(",")[0];
+                    const end_date = split_[1].split(",")[1];
+
+                    hours = start_time + " " + start_date + " - " + end_time + " " + end_date;
+
+                    const name = oppurtunities[i].replaceAll("\\", "").split(/(,)/)[0].replace("\"", "");
+                    const vol_container = document.createElement("div");
+                    vol_container.innerHTML += "<h3 style=\"margin: 0; font-weight: 600;\">" + name + "</h3><br>";
+                    vol_container.innerHTML += obj["header"] + "<br>" + hours;
+                    vol_container.classList.add("in-vol-opt");
+                    const desc = document.createElement("p");
+                    desc.innerHTML = "<br>" + obj["desc"];
+                    vol_container.appendChild(desc);
+                    const img = document.createElement("img");
+                    img.alt = "image";
+                    img.setAttribute("data-for", `vol_pic_cover_${i}`);
+                    ws.send(JSON.stringify({"instruction": "image", "path": obj["pictures"].split(",")[0], "for": `vol_pic_cover_${i}`}));
+                    vol_container.appendChild(img);
+                    vol_container.setAttribute("name", name);
+                    vol_container.style.borderRadius = "5px";
+                    vol_container.addEventListener("click", (e) => {
+                        window.location.href = "volunteering.html?name=" + e.currentTarget.getAttribute("name");
+                    });
+                    document.getElementById("container").appendChild(vol_container);
+                }
+            }
+        };
+    </script>
+</body>
+</html>
