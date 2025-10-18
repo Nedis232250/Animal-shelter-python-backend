@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal shelter homepage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+
+<style>
+    #break {
+        padding: 50px;
+        font-size: 30px;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 200;
+    }
+ 
+    a {
+        color: inherit;          /* use parent text color */
+    }
+</style>
+
+<body style="font-family: Montserrat;">
+    <link rel="stylesheet" href="navbar.css">
+    <div id="navbar" style="background-color: #62884B; color: #EAEAEA; font-family: arial;">
+        <span class="el dropdown">
+            <p>Account</p>
+            <div class="dropdown-content">
+                <a href="signup.html">Sign up</a><br><br>
+                <a href="login.html">Log in</a><br><br>
+                <a href="verification.html">Verify email</a><br><br>
+                <a href="pwchange.html">Change password</a>
+            </div>
+        </span><span class="el dropdown">
+            <p>Volunteering</p>
+            <div class="dropdown-content">
+                <a href="volunteering/createvolunteer.html">Create volunteering event</a><br><br>
+                <a href="volunteering/deletevolunteer.html">Delete volunteering event</a><br><br>
+                <a href="volunteering/volunteeringoptions.html">Volunteering oppurtunities</a><br><br>
+                <a href="volunteering/volunteers.html">Volunteer list</a>
+            </div>
+        </span><span class="el dropdown">
+            <p>Adoption</p>
+            <div class="dropdown-content">
+                <a href="adoptions/addadoptions.html">Put animal up for adoption</a><br><br>
+                <a href="adoptions/deleteadoption.html">Remove animal from adoption list</a><br><br>
+                <a href="adoptions/adoptions.html">Adoption oppurtunities</a><br><br>
+                <a href="adoptions/listadoptions.html">Adoption timing list</a>
+            </div>
+        </span><span class="el dropdown">
+            <p>Relinquishment</p>
+            <div class="dropdown-content">
+                <a href="relinquishments/relinquishment.html">Add relinquishment time</a><br><br>
+                <a href="relinquishments/deleterelinquishment.html">Delete relinquishment time</a><br><br>
+                <a href="relinquishments/listrelinquishments.html">List relinquishment times</a>
+            </div>
+        </span><span class="el dropdown">
+            <p>Animal data</p>
+            <div class="dropdown-content">
+                <a href="addanimal.html">Add an animal to the system</a><br><br>
+                <a href="deleteanimal.html">Delete an animal from the system</a><br><br>
+                <a href="editanimal.html">Edit animal data</a><br><br>
+                <a href="setcap.html">Set available capacity</a>
+            </div>
+        </span><span class="el dropdown" id="click-link"><p><a href="index.html" style="text-decoration: none; color: #f9f9f9;">Home Page</a></p></span>
+    </div>
+
+    <img data-for="background-image" style="width: 100%; height: 100vh; position: relative;">
+    <div id="break" style="background-color: rgba(0, 0, 0, 0.6); color: #FFFFFF;">About us:</div>
+    <img data-for="background-image2" style="width: 100%; height: 100vh;">
+    <div id="break" style="background-color: rgba(0, 0, 0, 0.6); color: #FFFFFF;"><a data-for="donationlink" target="_blank"></a></div>
+
+    <div style="height: 40vh; background-color: #191919; display: inline-block; width: 100%; font-family: arial;">
+        <span style="position: relative; color: #aeaeae; z-index: 1000000000000000000000; top: -175px; left: 20px;">Contact me at: Ned_August@loomis.org</span>
+        <pre style="position: relative; color: #aeaeae; z-index: 1000000000000000000000; top: 20px; left: 20px; display: inline-block;">
+            Copyright (c) 2025 Ned August
+
+            Permission is hereby granted to view, use, modify, and share this software
+            for personal, educational, or non-commercial purposes only.
+
+            Any commercial use, including selling, licensing, or using the software
+            to provide paid services, is prohibited.
+
+            You may not use this software for malicious, illegal, or unethical purposes,
+            including but not limited to surveillance, warfare, or harm to individuals
+            or society.
+
+            This software is provided "as is", without warranty of any kind.
+        </pre>
+    </div>
+    
+    <script>
+        const og_float_home_link_x = document.getElementById("click-link").getBoundingClientRect().right;
+        document.getElementById("click-link").style.position = "relative";
+        document.getElementById("click-link").style.left = `${
+            window.innerWidth - og_float_home_link_x - 25
+        }px`;
+
+        window.addEventListener("resize", () => {
+            document.getElementById("click-link").style.position = "relative";
+            document.getElementById("click-link").style.left = `${
+                window.innerWidth - og_float_home_link_x - 25
+            }px`;
+        });
+
+        function add_caption(x, y, bgc, margin, padding, r, b) {
+            const el = document.createElement("div");
+            if (!r) {
+                if (!b) {
+                    el.style = `position: absolute; display: flex; left: ${x}; top: ${y}; background-color: ${bgc}; margin: ${margin}; padding: ${padding};`;
+                } else {
+                    el.style = `position: absolute; display: flex; left: ${x}; bottom: ${y}; background-color: ${bgc}; margin: ${margin}; padding: ${padding};`;
+                }
+            } else if (r) {
+                if (!b) {
+                    el.style = `position: absolute; display: flex; right: ${x}; top: ${y}; background-color: ${bgc}; margin: ${margin}; padding: ${padding};`;
+                } else {
+                    el.style = `position: absolute; display: flex; right: ${x}; bottom: ${y}; background-color: ${bgc}; margin: ${margin}; padding: ${padding};`;
+                }
+            }
+            document.body.appendChild(el);
+            return el;
+        }
+
+        const posts = [];
+        const MOTD = add_caption("0", "-100px", "rgba(0, 0, 0, 0.3);", "0", "50px", false, false);
+        MOTD.style.fontSize = "20px";
+        MOTD.style.width = "20vw";
+        MOTD.style.height = "100%";
+        MOTD.style.textAlign = "center";
+        MOTD.style.justifyContent = "center";
+        MOTD.style.alignItems = "center";
+        MOTD.style.color = "#C3C3C3";
+        MOTD.setAttribute("data-for", "motd");
+        posts.push(MOTD);
+
+        const post2 = add_caption("0", "119.6vh", "rgba(0, 0, 0, 0.3);", "0", "50px", true, false); // Our mission
+        post2.style.fontSize = "20px";
+        post2.style.width = "20vw";
+        post2.style.height = document.querySelector(`[data-for="${"background-image2"}"]`).getBoundingClientRect().height - 100 + "px";
+        post2.style.textAlign = "center";
+        post2.style.alignItems = "center";
+        post2.style.color = "#C3C3C3";
+        post2.setAttribute("data-for", "mission");
+        posts.push(post2);
+
+        const ws = new WebSocket("ws://localhost:8765");
+    
+        ws.onopen = () => {
+            ws.send(JSON.stringify({"instruction": "image", "path": "signup.jpeg", "for": "background-image"}));
+            ws.send(JSON.stringify({"instruction": "image", "path": "signup.jpeg", "for": "background-image2"}));
+            ws.send(JSON.stringify({"instruction": "get key", "key": "MOTD", "for": "motd"}));
+            ws.send(JSON.stringify({"instruction": "get key", "key": "mission", "for": "mission"}));
+            ws.send(JSON.stringify({"instruction": "get key", "key": "donationtext", "for": "donationlink"}));
+            ws.send(JSON.stringify({"instruction": "donate"}));
+        }
+
+        ws.onmessage = (event) => {
+            const res = JSON.parse(event.data);
+
+            if (res["server response"] == "image") {
+                const elements = document.querySelectorAll(`[data-for="${res["for"]}"]`);
+                elements.forEach(el => {
+                    el.src = "data:image/png;base64," + res["data"];
+                });
+            } else if (res["server response"] == "get key") {
+                const elements = document.querySelectorAll(`[data-for="${res["for"]}"]`);
+                elements.forEach(el => {
+                    el.innerHTML = res["data"];
+                });
+            } else if (res["server response"] == "donate") {
+                document.querySelector(`[data-for="donationlink"]`).href = res["link"];
+            }
+        };
+    </script>
+</body>
+</html>
