@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+<link rel="stylesheet" href="../navbar.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+    textarea {
+        font-family: Arial;
+        resize: none;
+    }
+</style>
+
+<body style="height: 100%; margin: 0; padding-bottom: 0;">
+    <div id="navbar" style="background-color: #62884B; color: #EAEAEA; font-family: arial;">
+        <span class="el dropdown">
+            <p>Account</p>
+            <div class="dropdown-content">
+                <a href="../signup.html">Sign up</a><br><br>
+                <a href="../login.html">Log in</a><br><br>
+                <a href="../verification.html">Verify email</a><br><br>
+                <a href="../pwchange.html">Change password</a>
+            </div>
+        </span><span class="el dropdown">
+            <p>Volunteering</p>
+            <div class="dropdown-content">
+                <a href="createvolunteer.html">Create volunteering event</a><br><br>
+                <a href="deletevolunteer.html">Delete volunteering event</a><br><br>
+                <a href="volunteeringoptions.html">Volunteering oppurtunities</a><br><br>
+                <a href="volunteers.html">Volunteer list</a>
+            </div>
+        </span><span class="el dropdown">
+            <p>Adoption</p>
+            <div class="dropdown-content">
+                <a href="../adoptions/addadoptions.html">Put animal up for adoption</a><br><br>
+                <a href="../adoptions/deleteadoption.html">Remove animal from adoption list</a><br><br>
+                <a href="../adoptions/adoptions.html">Adoption oppurtunities</a><br><br>
+                <a href="../adoptions/listadoptions.html">Adoption timing list</a>
+            </div>
+        </span><span class="el dropdown">
+            <p>Relinquishment</p>
+            <div class="dropdown-content">
+                <a href="../relinquishments/relinquishment.html">Add relinquishment time</a><br><br>
+                <a href="../relinquishments/deleterelinquishment.html">Delete relinquishment time</a><br><br>
+                <a href="../relinquishments/listrelinquishments.html">List relinquishment times</a>
+            </div>
+        </span><span class="el dropdown">
+            <p>Animal data</p>
+            <div class="dropdown-content">
+                <a href="../addanimal.html">Add an animal to the system</a><br><br>
+                <a href="../deleteanimal.html">Delete an animal from the system</a><br><br>
+                <a href="../editanimal.html">Edit animal data</a><br><br>
+                <a href="../setcap.html">Set available capacity</a>
+            </div>
+        </span><span class="el dropdown" id="click-link"><p><a href="../index.html" style="text-decoration: none; color: #f9f9f9;">Home Page</a></p></span>
+    </div>
+    
+    <img style="width: 100%; height: 100vh; display: block; position: fixed;" data-for="background-image">
+
+    <div style="
+        position: absolute;
+        top: 75px; left: 0; right: 0;
+        margin-left: 30vw;
+        margin-right: 30vw;
+        padding-top: 0.25vh;
+        padding-bottom: 2.5vh;
+        border-radius: 1.25%;
+        margin-top: 5vh;
+        background-color: #EAEAEA;
+        margin-bottom: 2.5vh;
+    ">
+        <h2 style="text-align: center; font-family: 'Montserrat', serif; font-weight: 400;">Delete volunteering event</h2>
+        <div style="display: flex; flex-direction: column; align-items: center; font-family: 'Montserrat', serif; font-weight: 400;">
+            <div style="display: flex; flex-direction: column; align-items: flex-start; width: max-content;">
+                <label id="capacity" style="margin-top: 2.5vh; margin-bottom: 1.25vh;"></label>
+                <label style="margin-top: 1.25vh;">Name:</label>
+                <input style="width: 30vw; height: 4.5vh; margin-top: 1.25vh;" type="text" placeholder="Event #1" id="name">
+            </div>
+            <button onclick="send()" style="padding: 2.5vh; margin-top: 2.5vh; width: 30%; height: 10vh; font-family: 'Montserrat', serif; font-weight: 400; font-size: 15px;">Delete volunteering event</button>
+        </div>
+    </div>
+    <script>
+        const og_float_home_link_x = document.getElementById("click-link").getBoundingClientRect().right;
+        document.getElementById("click-link").style.position = "relative";
+        document.getElementById("click-link").style.left = `${
+            window.innerWidth - og_float_home_link_x - 25
+        }px`;
+
+        window.addEventListener("resize", () => {
+            document.getElementById("click-link").style.position = "relative";
+            document.getElementById("click-link").style.left = `${
+                window.innerWidth - og_float_home_link_x - 25
+            }px`;
+        });
+
+        const ws = new WebSocket("ws://localhost:8765");
+
+        function send() {
+            ws.send(JSON.stringify({
+                "instruction": "delete volunteer",
+                "sessionID": localStorage.getItem("Nedis232-animal-shelter-sessionID"),
+                "name": document.getElementById("name").value
+            }));
+        }
+    
+        ws.onopen = () => {
+            ws.send(JSON.stringify({"instruction": "image", "path": "signup.jpeg", "for": "background-image"}));
+            setTimeout(ws.send(JSON.stringify({"instruction": "request capacity"})), 1000);
+        }
+    
+        ws.onmessage = (event) => {
+            const res = JSON.parse(event.data);
+
+            if (res["server response"] == "image") {
+                const elements = document.querySelectorAll(`[data-for="${res["for"]}"]`);
+                elements.forEach(el => {
+                    el.src = "data:image/png;base64," + res["data"];
+                });
+            } else if (res["server response"] == "edit volunteer") { // ignore the wierdness it works
+                if (res["success"]) {
+                    window.location.href = "deletevolunteer.html";
+                } else {
+                    alert(res["errormsg"]);
+                }
+            } else if (res["server response"] == "return capacity") {
+                document.getElementById("capacity").innerHTML = "Available space: " + res["capacity"];
+            }
+        };
+    </script>
+</body>
+</html>
